@@ -16,4 +16,4 @@ services:
       - key: SESSION_SECRET
         value: your_secret_key
       - key: DATABASE_URL
-        value: postgresql://papers_aly2_user:6JGPhFM3BnfnQ1tezHmFE7HeJXpKLwHw@dpg-d13ls20gjchc7390i32g-a.oregon-postgres.render.com/papers_aly2
+        value: postgresql://papers_aly2_user:6JGPhFM3BnfnQ1tezHmFE7HeJXpKLwHw@dpg-d13ls20gjchc7390i32g-a/papers_aly2

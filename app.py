@@ -38,19 +38,16 @@ def create_app():
     app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     
-    # Database configuration - use environment DATABASE_URL for Supabase connection
+    # Database configuration
     database_url = os.environ.get("DATABASE_URL")
-    if not database_url:
-        # Fallback to your Supabase URL
-        database_url = "postgresql://postgres:Papers%23444@db.kpdmfxyhcogvxxlpuxyl.supabase.co:5432/postgres"
     
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_recycle": 300,
         "pool_pre_ping": True,
         "pool_timeout": 30,
-        "pool_size": 3,
-        "max_overflow": 5
+        "pool_size": 5,
+        "max_overflow": 10
     }
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

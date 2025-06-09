@@ -303,51 +303,123 @@ def register_routes(app):
     @login_required
     def bookmarks():
         """User's bookmarked papers"""
-        user_bookmarks = Bookmark.query.filter_by(user_id=current_user.id).order_by(Bookmark.created_at.desc()).all()
-        papers = [bookmark.paper for bookmark in user_bookmarks if bookmark.paper.is_approved]
-        return render_template('bookmarks.html', papers=papers)
+        bookmarked_papers = db.session.query(Paper).join(
+            Bookmark, Paper.id == Bookmark.paper_id
+        ).filter(
+            Bookmark.user_id == current_user.id,
+            Paper.is_approved == True
+        ).order_by(Bookmark.created_at.desc()).all()
+        
+        return render_template('bookmarks.html', papers=bookmarked_papers)
     
-    @app.route('/toggle-bookmark/<int:paper_id>', methods=['POST'])
+    @app.route('/bookmark/<int:paper_id>', methods=['POST'])
     @login_required
     def toggle_bookmark(paper_id):
-        """Toggle bookmark status for a paper"""
+        """Toggle bookmark for a paper"""
         paper = Paper.query.get_or_404(paper_id)
         
         if not paper.is_approved:
-            return jsonify({'success': False, 'message': 'Cannot bookmark unapproved papers'})
+            return jsonify({'error': 'Cannot bookmark unapproved paper'}), 400
         
-        existing_bookmark = Bookmark.query.filter_by(user_id=current_user.id, paper_id=paper_id).first()
+        # Check if bookmark exists
+        bookmark = Bookmark.query.filter_by(
+            user_id=current_user.id,
+            paper_id=paper_id
+        ).first()
         
-        if existing_bookmark:
-            # Remove bookmark
-            db.session.delete(existing_bookmark)
-            bookmarked = False
-            message = 'Bookmark removed'
-        else:
-            # Add bookmark
-            bookmark = Bookmark(user_id=current_user.id, paper_id=paper_id)
-            db.session.add(bookmark)
-            bookmarked = True
-            message = 'Paper bookmarked'
-        
-        db.session.commit()
-        return jsonify({'success': True, 'bookmarked': bookmarked, 'message': message})
+        try:
+            if bookmark:
+                # Remove bookmark
+                db.session.delete(bookmark)
+                db.session.commit()
+                return jsonify({
+                    'status': 'removed',
+                    'message': 'Bookmark removed'
+                })
+            else:
+                # Add bookmark
+                bookmark = Bookmark(
+                    user_id=current_user.id,
+                    paper_id=paper_id
+                )
+                db.session.add(bookmark)
+                db.session.commit()
+                return jsonify({
+                    'status': 'added',
+                    'message': 'Paper bookmarked'
+                })
+        except Exception as e:
+            logger.error(f'Bookmark error: {e}')
+            db.session.rollback()
+            return jsonify({'error': 'Failed to update bookmark'}), 500
     
     @app.route('/download/<int:paper_id>')
     @login_required
     def download_paper(paper_id):
-        """Download a paper file"""
+        """Download a paper"""
         paper = Paper.query.get_or_404(paper_id)
         
         if not paper.is_approved:
-            flash('This paper is not yet approved for download.', 'error')
+            flash('This paper is not available for download.', 'error')
             return redirect(url_for('index'))
         
         # Increment download count
-        paper.increment_download_count()
+        try:
+            paper.increment_download_count()
+            db.session.commit()
+        except Exception as e:
+            logger.error(f'Error updating download count: {e}')
+            # Continue with download even if count update fails
         
-        # Redirect to Cloudinary URL
-        return redirect(paper.cloudinary_url)
+        # Return a page that handles the download with better user feedback
+        if paper.cloudinary_url:
+            return f'''
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Downloading {paper.title}</title>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+            </head>
+            <body class="bg-light">
+                <div class="container mt-5">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <div class="spinner-border text-primary mb-3" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <h5 class="card-title">Downloading: {paper.title}</h5>
+                                    <p class="card-text">Your download should start automatically...</p>
+                                    <a href="{paper.cloudinary_url}" class="btn btn-primary" target="_blank">
+                                        Click here if download doesn't start
+                                    </a>
+                                    <br><br>
+                                    <a href="{url_for('index')}" class="btn btn-secondary">
+                                        Return to Home
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    // Auto-start download and redirect after delay
+                    setTimeout(function() {{
+                        window.open('{paper.cloudinary_url}', '_blank');
+                        setTimeout(function() {{
+                            window.location.href = '{url_for("index")}';
+                        }}, 2000);
+                    }}, 1000);
+                </script>
+            </body>
+            </html>
+            '''
+        else:
+            flash('File not available for download.', 'error')
+            return redirect(url_for('index'))
     
     @app.route('/admin')
     @login_required
@@ -357,7 +429,11 @@ def register_routes(app):
         stats = get_admin_stats()
         pending_papers = Paper.query.filter_by(is_approved=False).order_by(Paper.upload_date.desc()).all()
         recent_papers = Paper.query.filter_by(is_approved=True).order_by(Paper.approval_date.desc()).limit(10).all()
-        return render_template('admin_dashboard.html', stats=stats, pending_papers=pending_papers, recent_papers=recent_papers)
+        
+        return render_template('admin_dashboard.html',
+                             stats=stats,
+                             pending_papers=pending_papers,
+                             recent_papers=recent_papers)
     
     @app.route('/admin/approve/<int:paper_id>', methods=['POST'])
     @login_required
@@ -365,8 +441,15 @@ def register_routes(app):
     def approve_paper(paper_id):
         """Approve a paper"""
         paper = Paper.query.get_or_404(paper_id)
-        paper.approve(current_user)
-        flash(f'Paper "{paper.title}" has been approved.', 'success')
+        
+        try:
+            paper.approve(current_user)
+            flash(f'Paper "{paper.title}" approved successfully.', 'success')
+        except Exception as e:
+            logger.error(f'Approval error: {e}')
+            flash('Failed to approve paper.', 'error')
+            db.session.rollback()
+        
         return redirect(url_for('admin_dashboard'))
     
     @app.route('/admin/reject/<int:paper_id>', methods=['POST'])
@@ -376,42 +459,73 @@ def register_routes(app):
         """Reject a paper"""
         paper = Paper.query.get_or_404(paper_id)
         reason = request.form.get('reason', 'No reason provided')
-        paper.reject(current_user, reason)
-        flash(f'Paper "{paper.title}" has been rejected.', 'warning')
+        
+        try:
+            paper.reject(current_user, reason)
+            flash(f'Paper "{paper.title}" rejected.', 'warning')
+        except Exception as e:
+            logger.error(f'Rejection error: {e}')
+            flash('Failed to reject paper.', 'error')
+            db.session.rollback()
+        
         return redirect(url_for('admin_dashboard'))
     
+    @app.route('/admin/delete/<int:paper_id>', methods=['POST'])
+    @login_required
+    @admin_required
+    def delete_paper(paper_id):
+        """Delete a paper permanently"""
+        paper = Paper.query.get_or_404(paper_id)
+        
+        try:
+            db.session.delete(paper)
+            db.session.commit()
+            flash(f'Paper "{paper.title}" deleted permanently.', 'warning')
+        except Exception as e:
+            logger.error(f'Deletion error: {e}')
+            flash('Failed to delete paper.', 'error')
+            db.session.rollback()
+        
+        return redirect(url_for('admin_dashboard'))
+
     @app.route('/feedback', methods=['GET', 'POST'])
     def feedback():
         """Feedback form"""
         if request.method == 'POST':
-            name = request.form.get('name', '').strip()
-            email = request.form.get('email', '').strip()
-            subject = request.form.get('subject', '').strip()
-            message = request.form.get('message', '').strip()
-            rating = request.form.get('rating', type=int)
+            name = request.form.get('name')
+            email = request.form.get('email')
+            subject = request.form.get('subject')
+            message = request.form.get('message')
+            rating = request.form.get('rating')
             
+            # Validation
             if not all([name, email, subject, message]):
-                flash('All fields are required.', 'error')
+                flash('All fields are required!', 'error')
                 return render_template('feedback.html')
             
-            feedback_obj = Feedback(
-                name=name,
-                email=email,
-                subject=subject,
-                message=message,
-                rating=rating,
-                user_id=current_user.id if current_user.is_authenticated else None
-            )
-            
-            db.session.add(feedback_obj)
-            db.session.commit()
-            
-            flash('Thank you for your feedback!', 'success')
-            return redirect(url_for('feedback'))
+            try:
+                new_feedback = Feedback(
+                    name=name,
+                    email=email,
+                    subject=subject,
+                    message=message,
+                    rating=int(rating) if rating else None,
+                    user_id=current_user.id if current_user.is_authenticated else None
+                )
+                
+                db.session.add(new_feedback)
+                db.session.commit()
+                
+                flash('Thank you for your feedback! We appreciate your input.', 'success')
+                return redirect(url_for('feedback'))
+                
+            except Exception as e:
+                db.session.rollback()
+                flash('Error submitting feedback. Please try again.', 'error')
+                return render_template('feedback.html')
         
         return render_template('feedback.html')
     
-    @app.route('/about')
-    def about():
-        """About page"""
-        return render_template('about.html')
+    @app.context_processor
+    def inject_current_year():
+        return {'current_year': datetime.now().year}

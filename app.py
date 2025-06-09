@@ -15,9 +15,9 @@ load_dotenv()
 
 # Configure Cloudinary
 cloudinary.config(
-    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME', 'dn5l0jh19'),
-    api_key=os.environ.get('CLOUDINARY_API_KEY', '741223792776498'),
-    api_secret=os.environ.get('CLOUDINARY_API_SECRET', '36ODK08w5GkAd0UKekFkFt3QyXo')
+    cloud_name='dn5l0jh19',
+    api_key='741223792776498',
+    api_secret='36ODK08w5GkAd0UKekFkFt3QyXo'
 )
 
 # Configure logging
@@ -38,24 +38,20 @@ def create_app():
     app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     
-    # Database configuration
+    # Database configuration - use environment DATABASE_URL for Supabase connection
     database_url = os.environ.get("DATABASE_URL")
-    if database_url:
-        # Handle postgres:// URLs for compatibility
-        if database_url.startswith("postgres://"):
-            database_url = database_url.replace("postgres://", "postgresql://", 1)
-        
-        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-            "pool_recycle": 300,
-            "pool_pre_ping": True,
-            "pool_timeout": 20,
-            "pool_size": 5,
-            "max_overflow": 10
-        }
-    else:
-        # Fallback to SQLite for development
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///universitypyq.db"
+    if not database_url:
+        # Fallback to your Supabase URL
+        database_url = "postgresql://postgres:Papers%23444@db.kpdmfxyhcogvxxlpuxyl.supabase.co:5432/postgres"
+    
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_recycle": 300,
+        "pool_pre_ping": True,
+        "pool_timeout": 30,
+        "pool_size": 3,
+        "max_overflow": 5
+    }
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # Cloudinary configuration
@@ -113,7 +109,7 @@ def create_app():
             )
             db.session.add(admin)
             db.session.commit()
-            app.logger.info('Admin user created with username: admin, password: Pyqs2025')
+            app.logger.info('Admin user created with username: admin, password: admin123')
     
     # Error handlers
     @app.errorhandler(404)

@@ -5,108 +5,158 @@
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-file-alt me-2"></i>My Uploads</h2>
-        <a href="{{ url_for('upload_paper') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-1"></i>Upload New Paper
-        </a>
+        <h2>My Uploads</h2>
+        <a href="{{ url_for('upload_paper') }}" class="btn btn-primary">Upload New Paper</a>
     </div>
 
     {% if papers %}
-        <div class="row">
+        <div class="mb-3">
+            <p class="text-secondary">
+                You have uploaded <strong>{{ papers|length }}</strong> paper{{ 's' if papers|length != 1 else '' }}
+            </p>
+        </div>
+
+        <div class="papers-grid grid grid-3">
             {% for paper in papers %}
-            <div class="col-lg-6 col-xl-4 mb-4">
-                <div class="card h-100 shadow-sm">
+                <div class="card paper-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary">{{ paper.subject }}</span>
+                            <h5 class="card-title mb-0">{{ paper.title }}</h5>
                             {% if paper.is_approved %}
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check me-1"></i>Approved
-                                </span>
+                                <span class="badge badge-success">Approved</span>
                             {% else %}
-                                <span class="badge bg-warning">
-                                    <i class="fas fa-clock me-1"></i>Pending
-                                </span>
+                                <span class="badge badge-warning">Pending Review</span>
                             {% endif %}
                         </div>
                         
-                        <h5 class="card-title">{{ paper.title }}</h5>
-                        
-                        <div class="paper-details">
-                            <p class="text-muted mb-1">
-                                <i class="fas fa-calendar me-1"></i>{{ paper.year }} - {{ paper.semester }}
-                            </p>
-                            <p class="text-muted mb-1">
-                                <i class="fas fa-graduation-cap me-1"></i>{{ paper.exam_type }}
-                            </p>
-                            {% if paper.college %}
-                            <p class="text-muted mb-1">
-                                <i class="fas fa-university me-1"></i>{{ paper.college }}
-                            </p>
-                            {% endif %}
-                            {% if paper.course %}
-                            <p class="text-muted mb-1">
-                                <i class="fas fa-book me-1"></i>{{ paper.course }}
-                            </p>
+                        <div class="paper-meta">
+                            <span class="badge badge-primary">{{ paper.subject }}</span>
+                            <span class="badge badge-secondary">{{ paper.year }}</span>
+                            <span class="badge badge-secondary">{{ paper.semester }}</span>
+                            {% if paper.exam_type != 'Regular' %}
+                                <span class="badge badge-warning">{{ paper.exam_type }}</span>
                             {% endif %}
                         </div>
-
-                        {% if paper.description %}
-                        <p class="card-text">{{ paper.description[:100] }}{% if paper.description|length > 100 %}...{% endif %}</p>
+                        
+                        {% if paper.college %}
+                            <p class="card-text">
+                                <small class="text-muted">{{ paper.college }}</small>
+                            </p>
                         {% endif %}
                         
-                        <div class="mt-3">
-                            <small class="text-muted d-block">
-                                <i class="fas fa-upload me-1"></i>
-                                Uploaded: {{ paper.upload_date.strftime('%b %d, %Y') }}
-                            </small>
-                            {% if paper.is_approved %}
-                                <small class="text-muted d-block">
-                                    <i class="fas fa-download me-1"></i>
-                                    {{ paper.download_count }} downloads
+                        {% if paper.description %}
+                            <p class="card-text">{{ paper.description[:100] }}{% if paper.description|length > 100 %}...{% endif %}</p>
+                        {% endif %}
+                        
+                        {% if paper.rejection_reason %}
+                            <div class="alert alert-error">
+                                <strong>Rejection Reason:</strong> {{ paper.rejection_reason }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="paper-actions">
+                            <div class="d-flex align-items-center">
+                                {% if paper.is_approved %}
+                                    <a href="{{ url_for('download_paper', paper_id=paper.id) }}" 
+                                       class="btn btn-primary btn-sm">
+                                        Download
+                                    </a>
+                                {% else %}
+                                    <span class="btn btn-secondary btn-sm disabled">
+                                        Awaiting Review
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="paper-stats">
+                                <small class="text-muted">
+                                    {% if paper.is_approved %}
+                                        {{ paper.download_count }} download{{ 's' if paper.download_count != 1 else '' }} •
+                                    {% endif %}
+                                    {{ paper.get_file_size_formatted() }}
+                                    • Uploaded {{ paper.upload_date.strftime('%b %d, %Y') }}
                                 </small>
                                 {% if paper.approval_date %}
-                                <small class="text-muted d-block">
-                                    <i class="fas fa-check-circle me-1"></i>
-                                    Approved: {{ paper.approval_date.strftime('%b %d, %Y') }}
-                                </small>
+                                    <br>
+                                    <small class="text-success">
+                                        Approved {{ paper.approval_date.strftime('%b %d, %Y') }}
+                                        {% if paper.approved_by %}
+                                            by {{ paper.approved_by.username }}
+                                        {% endif %}
+                                    </small>
                                 {% endif %}
-                            {% endif %}
-                            {% if paper.rejection_reason %}
-                                <div class="alert alert-danger mt-2 p-2">
-                                    <small><strong>Rejection Reason:</strong> {{ paper.rejection_reason }}</small>
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <small class="text-muted">
-                                {{ paper.get_file_size_formatted() }} • {{ paper.file_format.upper() }}
-                            </small>
+                            </div>
                         </div>
                     </div>
-                    
-                    {% if paper.is_approved %}
-                    <div class="card-footer bg-transparent">
-                        <a href="{{ url_for('download_paper', paper_id=paper.id) }}" 
-                           class="btn btn-outline-primary w-100">
-                            <i class="fas fa-download me-1"></i>Download
-                        </a>
-                    </div>
-                    {% endif %}
                 </div>
-            </div>
             {% endfor %}
         </div>
+        
+        <!-- Upload Statistics -->
+        <div class="card mt-5">
+            <div class="card-header">
+                <h5 class="mb-0">Upload Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h4 class="stat-number text-primary">{{ papers|length }}</h4>
+                            <p class="stat-label">Total Uploads</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h4 class="stat-number text-success">{{ papers|selectattr('is_approved')|list|length }}</h4>
+                            <p class="stat-label">Approved</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h4 class="stat-number text-warning">{{ papers|rejectattr('is_approved')|list|length }}</h4>
+                            <p class="stat-label">Pending</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h4 class="stat-number text-info">{{ papers|selectattr('is_approved')|sum(attribute='download_count') }}</h4>
+                            <p class="stat-label">Total Downloads</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% else %}
-        <div class="text-center py-5">
-            <i class="fas fa-file-upload text-muted" style="font-size: 4rem;"></i>
-            <h4 class="mt-3 text-muted">No uploads yet</h4>
-            <p class="text-muted">Share your question papers with the community</p>
-            <a href="{{ url_for('upload_paper') }}" class="btn btn-primary btn-lg mt-3">
-                <i class="fas fa-plus me-1"></i>Upload Your First Paper
+        <!-- Empty State -->
+        <div class="empty-state text-center mt-5">
+            <div class="empty-icon mb-4">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14,2 14,8 20,8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <polyline points="9,15 12,12 15,15"></polyline>
+                </svg>
+            </div>
+            
+            <h3 class="mb-3">No Papers Uploaded Yet</h3>
+            <p class="text-secondary mb-4">
+                Share your question papers with the community to help other students.
+            </p>
+            <a href="{{ url_for('upload_paper') }}" class="btn btn-primary">
+                Upload Your First Paper
             </a>
         </div>
     {% endif %}
 </div>
+
+<style>
+.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.stat-item {
+    padding: var(--space-md) 0;
+}
+</style>
 {% endblock %}

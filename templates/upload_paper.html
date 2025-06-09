@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card shadow">
+            <div class="card">
                 <div class="card-header text-center">
                     <h3 class="card-title mb-0">Upload Question Paper</h3>
                     <p class="text-muted mt-2">Share your question papers with the community</p>
@@ -16,7 +16,7 @@
                     <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                         <div class="row">
                             <div class="col-md-8">
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="title" class="form-label">Paper Title *</label>
                                     <input type="text" 
                                            id="title" 
@@ -24,13 +24,10 @@
                                            class="form-control" 
                                            placeholder="e.g., Data Structures and Algorithms Final Exam"
                                            required>
-                                    <div class="invalid-feedback">
-                                        Please provide a paper title.
-                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="year" class="form-label">Academic Year *</label>
                                     <select id="year" name="year" class="form-control form-select" required>
                                         <option value="">Select Year</option>
@@ -40,16 +37,13 @@
                                             </option>
                                         {% endfor %}
                                     </select>
-                                    <div class="invalid-feedback">
-                                        Please select an academic year.
-                                    </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="subject" class="form-label">Subject *</label>
                                     <input type="text" 
                                            id="subject" 
@@ -57,13 +51,10 @@
                                            class="form-control" 
                                            placeholder="e.g., Computer Science, Mathematics"
                                            required>
-                                    <div class="invalid-feedback">
-                                        Please provide the subject name.
-                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="semester" class="form-label">Semester *</label>
                                     <select id="semester" name="semester" class="form-control form-select" required>
                                         <option value="">Select Semester</option>
@@ -78,16 +69,13 @@
                                         <option value="Summer">Summer</option>
                                         <option value="Winter">Winter</option>
                                     </select>
-                                    <div class="invalid-feedback">
-                                        Please select a semester.
-                                    </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="exam_type" class="form-label">Exam Type</label>
                                     <select id="exam_type" name="exam_type" class="form-control form-select">
                                         <option value="Regular">Regular Exam</option>
@@ -100,7 +88,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="course" class="form-label">Course Code</label>
                                     <input type="text" 
                                            id="course" 
@@ -111,7 +99,7 @@
                             </div>
                         </div>
                         
-                        <div class="form-group mb-3">
+                        <div class="form-group">
                             <label for="college" class="form-label">College/University</label>
                             <input type="text" 
                                    id="college" 
@@ -120,7 +108,7 @@
                                    placeholder="Enter your college or university name">
                         </div>
                         
-                        <div class="form-group mb-3">
+                        <div class="form-group">
                             <label for="description" class="form-label">Description</label>
                             <textarea id="description" 
                                       name="description" 
@@ -130,7 +118,7 @@
                         </div>
                         
                         <!-- File Upload Section -->
-                        <div class="form-group mb-3">
+                        <div class="form-group">
                             <label for="file" class="form-label">Upload File *</label>
                             <div class="upload-area" id="upload-area">
                                 <div class="upload-content" id="upload-content">
@@ -165,12 +153,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="invalid-feedback">
-                                Please select a file to upload.
-                            </div>
                         </div>
                         
-                        <div class="form-group mb-3">
+                        <div class="form-group">
                             <div class="alert alert-info">
                                 <strong>Note:</strong> Your uploaded paper will be reviewed by administrators before being published. 
                                 Only appropriate academic content will be approved.
@@ -180,7 +165,7 @@
                         <div class="d-flex justify-content-between">
                             <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-upload me-1"></i>Upload Paper
+                                Upload Paper
                             </button>
                         </div>
                     </form>
@@ -259,13 +244,19 @@ document.addEventListener('DOMContentLoaded', function() {
         fileName.textContent = file.name;
         fileSize.textContent = formatFileSize(file.size);
         fileInfo.style.display = 'block';
-        uploadContent.style.display = 'none';
-    }
-    
-    window.clearFile = function() {
-        fileInput.value = '';
-        fileInfo.style.display = 'none';
-        uploadContent.style.display = 'block';
+        
+        // Update upload area appearance
+        uploadArea.style.borderColor = '#28a745';
+        uploadArea.style.backgroundColor = '#f8fff9';
+        uploadContent.innerHTML = `
+            <div class="text-success mb-2">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 6L9 17l-5-5"/>
+                </svg>
+            </div>
+            <h6 class="text-success">File selected successfully</h6>
+            <p class="text-muted small mb-0">Click to change file</p>
+        `;
     }
     
     function formatFileSize(bytes) {
@@ -276,22 +267,35 @@ document.addEventListener('DOMContentLoaded', function() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
     
-    // Form validation
-    (function() {
-        'use strict';
-        window.addEventListener('load', function() {
-            var forms = document.getElementsByClassName('needs-validation');
-            var validation = Array.prototype.filter.call(forms, function(form) {
-                form.addEventListener('submit', function(event) {
-                    if (form.checkValidity() === false) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false);
-            });
-        }, false);
-    })();
+    // Make formatFileSize available globally
+    window.formatFileSize = formatFileSize;
 });
+
+function clearFile() {
+    const fileInput = document.getElementById('file');
+    const fileInfo = document.getElementById('file-info');
+    const uploadArea = document.getElementById('upload-area');
+    const uploadContent = document.getElementById('upload-content');
+    
+    fileInput.value = '';
+    fileInfo.style.display = 'none';
+    uploadArea.style.borderColor = '';
+    uploadArea.style.backgroundColor = '';
+    
+    // Reset upload area content
+    uploadContent.innerHTML = `
+        <div class="upload-icon mb-3">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14,2 14,8 20,8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <polyline points="9,15 12,12 15,15"></polyline>
+            </svg>
+        </div>
+        <h5>Click to upload or drag and drop</h5>
+        <p class="text-muted">PDF, DOC, DOCX files (Max 10MB)</p>
+    `;
+    uploadArea.style.borderColor = '';
+}
 </script>
 {% endblock %}

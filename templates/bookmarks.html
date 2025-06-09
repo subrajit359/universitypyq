@@ -1,150 +1,180 @@
 {% extends "base.html" %}
 
-{% block title %}Bookmarks - UniversityPYQ{% endblock %}
+{% block title %}My Bookmarks - UniversityPYQ{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-bookmark me-2"></i>My Bookmarks</h2>
-        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
-            <i class="fas fa-search me-1"></i>Browse Papers
+        <h2>My Bookmarks</h2>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">
+            <span class="btn-icon">🔍</span>
+            Browse Papers
         </a>
     </div>
 
     {% if papers %}
-        <div class="row">
+        <div class="papers-grid">
             {% for paper in papers %}
-            <div class="col-lg-6 col-xl-4 mb-4">
-                <div class="card h-100 shadow-sm">
+                <div class="card paper-card bookmark-card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary">{{ paper.subject }}</span>
-                            <button class="btn btn-sm btn-outline-secondary bookmark-btn" 
-                                    data-paper-id="{{ paper.id }}"
-                                    data-bookmarked="true">
-                                <i class="fas fa-bookmark text-warning"></i>
-                            </button>
+                        <div class="bookmark-indicator">
+                            <span class="bookmark-star">⭐</span>
                         </div>
                         
                         <h5 class="card-title">{{ paper.title }}</h5>
                         
-                        <div class="paper-details">
-                            <p class="text-muted mb-1">
-                                <i class="fas fa-calendar me-1"></i>{{ paper.year }} - {{ paper.semester }}
-                            </p>
-                            <p class="text-muted mb-1">
-                                <i class="fas fa-graduation-cap me-1"></i>{{ paper.exam_type }}
-                            </p>
-                            {% if paper.college %}
-                            <p class="text-muted mb-1">
-                                <i class="fas fa-university me-1"></i>{{ paper.college }}
-                            </p>
-                            {% endif %}
-                            {% if paper.course %}
-                            <p class="text-muted mb-1">
-                                <i class="fas fa-book me-1"></i>{{ paper.course }}
-                            </p>
+                        <div class="paper-meta">
+                            <span class="badge badge-primary">{{ paper.subject }}</span>
+                            <span class="badge badge-secondary">{{ paper.year }}</span>
+                            <span class="badge badge-secondary">{{ paper.semester }}</span>
+                            {% if paper.exam_type != 'Regular' %}
+                                <span class="badge badge-warning">{{ paper.exam_type }}</span>
                             {% endif %}
                         </div>
-
-                        {% if paper.description %}
-                        <p class="card-text">{{ paper.description[:100] }}{% if paper.description|length > 100 %}...{% endif %}</p>
+                        
+                        {% if paper.college %}
+                            <p class="card-text">
+                                <small class="text-muted">{{ paper.college }}</small>
+                            </p>
                         {% endif %}
                         
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <small class="text-muted">
-                                <i class="fas fa-download me-1"></i>{{ paper.download_count }} downloads
-                            </small>
-                            <small class="text-muted">
-                                {{ paper.get_file_size_formatted() }} • {{ paper.file_format.upper() }}
-                            </small>
+                        {% if paper.description %}
+                            <p class="card-text">{{ paper.description[:100] }}{% if paper.description|length > 100 %}...{% endif %}</p>
+                        {% endif %}
+                        
+                        <div class="paper-actions">
+                            <div class="d-flex align-items-center">
+                                <a href="{{ url_for('download_paper', paper_id=paper.id) }}" 
+                                   class="btn btn-primary btn-sm">
+                                    Download
+                                </a>
+                                
+                                <button class="btn btn-secondary btn-sm bookmark-btn ml-2 bookmarked"
+                                        data-paper-id="{{ paper.id }}">
+                                    ★ Bookmarked
+                                </button>
+                            </div>
+                            
+                            <div class="paper-stats">
+                                <small class="text-muted">
+                                    {{ paper.download_count }} download{{ 's' if paper.download_count != 1 else '' }}
+                                    • {{ paper.get_file_size_formatted() }}
+                                    • {{ paper.upload_date.strftime('%b %Y') }}
+                                </small>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="card-footer bg-transparent">
-                        <a href="{{ url_for('download_paper', paper_id=paper.id) }}" 
-                           class="btn btn-primary w-100">
-                            <i class="fas fa-download me-1"></i>Download
-                        </a>
-                    </div>
                 </div>
-            </div>
             {% endfor %}
         </div>
     {% else %}
-        <div class="text-center py-5">
-            <i class="fas fa-bookmark text-muted" style="font-size: 4rem;"></i>
-            <h4 class="mt-3 text-muted">No bookmarks yet</h4>
-            <p class="text-muted">Start bookmarking papers you want to save for later</p>
-            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg mt-3">
-                <i class="fas fa-search me-1"></i>Browse Question Papers
+        <!-- Empty State -->
+        <div class="empty-state text-center mt-5">
+            <div class="empty-icon mb-4">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9 8.91 8.26 12 2"></polygon>
+                </svg>
+            </div>
+            
+            <h3 class="mb-3">No bookmarks yet</h3>
+            <p class="text-secondary mb-4">
+                Start bookmarking papers you find useful for quick access later!
+            </p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                Explore Papers
             </a>
         </div>
     {% endif %}
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script>
-// Bookmark functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const bookmarkBtns = document.querySelectorAll('.bookmark-btn');
-    
-    bookmarkBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const paperId = this.dataset.paperId;
-            
-            fetch(`/toggle-bookmark/${paperId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Remove the card since bookmark was removed
-                    this.closest('.col-lg-6').remove();
-                    
-                    // Check if no bookmarks left
-                    const remainingCards = document.querySelectorAll('.col-lg-6').length;
-                    if (remainingCards === 0) {
-                        location.reload(); // Reload to show empty state
-                    }
-                    
-                    // Show toast notification
-                    showToast(data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error updating bookmark', 'error');
-            });
-        });
-    });
-});
-
-function showToast(message, type = 'success') {
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : 'success'} border-0`;
-    toast.setAttribute('role', 'alert');
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">${message}</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    `;
-    
-    // Add to page
-    document.body.appendChild(toast);
-    const bsToast = new bootstrap.Toast(toast);
-    bsToast.show();
-    
-    // Remove after hiding
-    toast.addEventListener('hidden.bs.toast', () => {
-        document.body.removeChild(toast);
-    });
+{% block head %}
+<style>
+.bookmark-card {
+    position: relative;
+    border: 2px solid transparent;
+    background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+                linear-gradient(45deg, 
+                    hsl(var(--warning-h), var(--warning-s), var(--warning-l)),
+                    hsl(var(--primary-h), var(--primary-s), var(--primary-l))
+                ) border-box;
+    animation: borderGlow 3s ease-in-out infinite;
 }
-</script>
+
+@keyframes borderGlow {
+    0%, 100% { 
+        border-color: transparent;
+        box-shadow: 0 0 0 0 hsla(var(--warning-h), var(--warning-s), var(--warning-l), 0.5);
+    }
+    50% { 
+        border-color: hsla(var(--warning-h), var(--warning-s), var(--warning-l), 0.3);
+        box-shadow: 0 0 20px hsla(var(--warning-h), var(--warning-s), var(--warning-l), 0.3);
+    }
+}
+
+.bookmark-indicator {
+    position: absolute;
+    top: -10px;
+    right: 15px;
+    z-index: 10;
+}
+
+.bookmark-star {
+    font-size: 2rem;
+    color: hsl(var(--warning-h), var(--warning-s), var(--warning-l));
+    text-shadow: 0 0 10px hsla(var(--warning-h), var(--warning-s), var(--warning-l), 0.5);
+    animation: twinkle 2s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { 
+        transform: scale(1) rotate(0deg);
+        filter: brightness(1);
+    }
+    50% { 
+        transform: scale(1.1) rotate(5deg);
+        filter: brightness(1.2);
+    }
+}
+
+.btn-icon {
+    margin-right: 0.5rem;
+    font-size: 1.1em;
+}
+
+.bookmark-btn.bookmarked {
+    background: linear-gradient(135deg,
+        hsl(var(--warning-h), var(--warning-s), var(--warning-l)),
+        hsl(var(--warning-h), var(--warning-s), calc(var(--warning-l) - 10%))
+    );
+    color: white;
+    border-color: hsl(var(--warning-h), var(--warning-s), var(--warning-l));
+    animation: starPulse 2s ease-in-out infinite;
+}
+
+@keyframes starPulse {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 hsla(var(--warning-h), var(--warning-s), var(--warning-l), 0.7);
+    }
+    50% { 
+        box-shadow: 0 0 0 10px hsla(var(--warning-h), var(--warning-s), var(--warning-l), 0);
+    }
+}
+
+/* Hover effects */
+.bookmark-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    animation-play-state: paused;
+    border-color: hsl(var(--warning-h), var(--warning-s), var(--warning-l));
+    box-shadow: 
+        0 20px 40px hsla(var(--warning-h), var(--warning-s), var(--warning-l), 0.2),
+        0 0 30px hsla(var(--warning-h), var(--warning-s), var(--warning-l), 0.3);
+}
+
+.bookmark-card:hover .bookmark-star {
+    animation-play-state: paused;
+    transform: scale(1.2) rotate(10deg);
+    filter: brightness(1.3);
+}
+</style>
 {% endblock %}

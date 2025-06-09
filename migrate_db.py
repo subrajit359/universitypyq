@@ -40,7 +40,7 @@ def migrate_to_supabase():
             # Create default admin user
             admin_user = User(
                 username='admin',
-                email='admin@universitypyq.com',
+                email='universitypyqs@gmail.com',
                 first_name='Admin',
                 last_name='User',
                 is_admin=True

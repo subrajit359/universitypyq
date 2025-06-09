@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - UniversityPYQ{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Profile Header -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="profile-avatar mb-3">
+                        <div class="avatar-placeholder">
+                            {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+                        </div>
+                    </div>
+                    <h3>{{ current_user.first_name }} {{ current_user.last_name }}</h3>
+                    <p class="text-muted">@{{ current_user.username }}</p>
+                    <p class="text-secondary">{{ current_user.email }}</p>
+                    
+                    {% if current_user.is_admin %}
+                        <span class="badge badge-warning">Administrator</span>
+                    {% endif %}
+                    
+                    <p class="text-muted mt-2">
+                        <small>Member since {{ current_user.created_at.strftime('%B %Y') }}</small>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="stat-item upload-stat">
+                                <div class="stat-icon">📤</div>
+                                <h4 class="stat-number">{{ stats.total_uploads }}</h4>
+                                <p class="stat-label">Total Uploads</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item approved-stat">
+                                <div class="stat-icon">✅</div>
+                                <h4 class="stat-number">{{ stats.approved_uploads }}</h4>
+                                <p class="stat-label">Approved Papers</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item download-stat">
+                                <div class="stat-icon">📥</div>
+                                <h4 class="stat-number">{{ stats.total_downloads }}</h4>
+                                <p class="stat-label">Total Downloads</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item bookmark-stat">
+                                <div class="stat-icon">⭐</div>
+                                <h4 class="stat-number">{{ stats.total_bookmarks }}</h4>
+                                <p class="stat-label">Bookmarks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ url_for('upload_paper') }}" class="btn btn-primary w-100">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14,2 14,8 20,8"></polyline>
+                                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                                    <polyline points="9,15 12,12 15,15"></polyline>
+                                </svg>
+                                Upload New Paper
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ url_for('my_uploads') }}" class="btn btn-secondary w-100">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14,2 14,8 20,8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10,9 9,9 8,9"></polyline>
+                                </svg>
+                                View My Uploads
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ url_for('bookmarks') }}" class="btn btn-secondary w-100">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                My Bookmarks
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary w-100">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="M21 21l-4.35-4.35"></path>
+                                </svg>
+                                Browse Papers
+                            </a>
+                        </div>
+                    </div>
+
+                    {% if current_user.is_admin %}
+                        <div class="mt-4 pt-4 border-top">
+                            <h6 class="text-muted mb-3">Administrator Actions</h6>
+                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-warning w-100">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                </svg>
+                                Admin Dashboard
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, 
+        hsl(var(--primary-h), var(--primary-s), var(--primary-l)),
+        hsl(var(--secondary-h), var(--secondary-s), var(--secondary-l))
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0 auto;
+}
+
+.stat-item {
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s;
+}
+
+.stat-item:hover::before {
+    left: 100%;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.upload-stat {
+    background: linear-gradient(135deg, hsla(210, 100%, 50%, 0.1), hsla(210, 100%, 60%, 0.05));
+    border: 1px solid hsla(210, 100%, 50%, 0.2);
+}
+
+.upload-stat .stat-number {
+    color: hsl(210, 100%, 50%);
+    text-shadow: 0 0 10px hsla(210, 100%, 50%, 0.3);
+}
+
+.approved-stat {
+    background: linear-gradient(135deg, hsla(142, 71%, 45%, 0.1), hsla(142, 71%, 55%, 0.05));
+    border: 1px solid hsla(142, 71%, 45%, 0.2);
+}
+
+.approved-stat .stat-number {
+    color: hsl(142, 71%, 45%);
+    text-shadow: 0 0 10px hsla(142, 71%, 45%, 0.3);
+}
+
+.download-stat {
+    background: linear-gradient(135deg, hsla(280, 60%, 50%, 0.1), hsla(280, 60%, 60%, 0.05));
+    border: 1px solid hsla(280, 60%, 50%, 0.2);
+}
+
+.download-stat .stat-number {
+    color: hsl(280, 60%, 50%);
+    text-shadow: 0 0 10px hsla(280, 60%, 50%, 0.3);
+}
+
+.bookmark-stat {
+    background: linear-gradient(135deg, hsla(38, 92%, 50%, 0.1), hsla(38, 92%, 60%, 0.05));
+    border: 1px solid hsla(38, 92%, 50%, 0.2);
+}
+
+.bookmark-stat .stat-number {
+    color: hsl(38, 92%, 50%);
+    text-shadow: 0 0 10px hsla(38, 92%, 50%, 0.3);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0;
+    animation: numberGlow 3s ease-in-out infinite;
+}
+
+@keyframes numberGlow {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.me-2 {
+    margin-right: 0.5rem;
+}
+
+.border-top {
+    border-top: 1px solid var(--border-color) !important;
+}
+</style>
+{% endblock %}

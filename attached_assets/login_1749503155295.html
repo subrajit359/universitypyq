@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Login - UniversityPYQ{% endblock %}
+
+{% block content %}
+<div class="container-sm mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3 class="card-title mb-0">Welcome Back</h3>
+                    <p class="text-muted mt-2">Sign in to access your account</p>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="form-group">
+                            <label for="username" class="form-label">Username or Email</label>
+                            <input type="text" 
+                                   id="username" 
+                                   name="username" 
+                                   class="form-control" 
+                                   placeholder="Enter your username or email"
+                                   required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" 
+                                   id="password" 
+                                   name="password" 
+                                   class="form-control" 
+                                   placeholder="Enter your password"
+                                   required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            Sign In
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="card-footer text-center">
+                    <p class="mb-0">
+                        Don't have an account? 
+                        <a href="{{ url_for('register') }}" class="text-primary">Sign up here</a>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Demo Credentials Info -->
+            <div class="card mt-4">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Important Notice</h6>
+                    <p class="mb-1"><strong>Remember Your Username or email</strong> With password</p>
+                    <p class="mb-0 text-muted">
+                        <small>You can also register a new account with another valid email</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

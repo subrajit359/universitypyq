@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - UniversityPYQ{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="error-page text-center">
+        <div class="error-animation mb-4">
+            <div class="error-number">404</div>
+            <div class="error-icon floating">
+                <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="m9 9 6 6"></path>
+                    <path d="m15 9-6 6"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <h1 class="error-title mb-3">Oops! Page Not Found</h1>
+        <p class="error-description mb-4">
+            The page you're looking for seems to have wandered off. 
+            Let's get you back on track!
+        </p>
+        
+        <div class="error-actions">
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg mr-3">
+                🏠 Go Home
+            </a>
+            <button onclick="history.back()" class="btn btn-secondary btn-lg">
+                ← Go Back
+            </button>
+        </div>
+        
+        <div class="helpful-links mt-5">
+            <h5>Try these instead:</h5>
+            <div class="link-grid">
+                <a href="{{ url_for('index') }}" class="helpful-link">
+                    <span class="link-icon">🔍</span>
+                    Browse Papers
+                </a>
+                
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('upload_paper') }}" class="helpful-link">
+                        <span class="link-icon">📤</span>
+                        Upload Paper
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="helpful-link">
+                        <span class="link-icon">👤</span>
+                        Your Profile
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="helpful-link">
+                        <span class="link-icon">🔐</span>
+                        Login
+                    </a>
+                    <a href="{{ url_for('register') }}" class="helpful-link">
+                        <span class="link-icon">✨</span>
+                        Sign Up
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+.error-page {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.error-animation {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.error-number {
+    font-size: 8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, 
+        hsl(var(--primary-h), var(--primary-s), var(--primary-l)),
+        hsl(var(--secondary-h), var(--secondary-s), var(--secondary-l))
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: glitch 2s infinite;
+    position: relative;
+}
+
+@keyframes glitch {
+    0%, 100% { 
+        transform: translateX(0);
+        filter: hue-rotate(0deg);
+    }
+    20% { 
+        transform: translateX(-2px);
+        filter: hue-rotate(90deg);
+    }
+    40% { 
+        transform: translateX(2px);
+        filter: hue-rotate(180deg);
+    }
+    60% { 
+        transform: translateX(-2px);
+        filter: hue-rotate(270deg);
+    }
+    80% { 
+        transform: translateX(2px);
+        filter: hue-rotate(360deg);
+    }
+}
+
+.error-icon {
+    color: var(--text-muted);
+    opacity: 0.5;
+    margin-top: 1rem;
+}
+
+.floating {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.error-title {
+    font-size: 2.5rem;
+    color: var(--text-primary);
+    animation: fadeInUp 1s ease-out;
+}
+
+.error-description {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 500px;
+    animation: fadeInUp 1s ease-out 0.2s both;
+}
+
+.error-actions {
+    animation: fadeInUp 1s ease-out 0.4s both;
+}
+
+.helpful-links {
+    animation: fadeInUp 1s ease-out 0.6s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.link-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    max-width: 600px;
+}
+
+.helpful-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.helpful-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s;
+}
+
+.helpful-link:hover::before {
+    left: 100%;
+}
+
+.helpful-link:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.link-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .error-number {
+        font-size: 6rem;
+    }
+    
+    .error-title {
+        font-size: 2rem;
+    }
+    
+    .error-description {
+        font-size: 1rem;
+    }
+    
+    .link-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock %}

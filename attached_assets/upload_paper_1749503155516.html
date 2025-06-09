@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Paper - UniversityPYQ{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3 class="card-title mb-0">Upload Question Paper</h3>
+                    <p class="text-muted mt-2">Share your question papers with the community</p>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label for="title" class="form-label">Paper Title *</label>
+                                    <input type="text" 
+                                           id="title" 
+                                           name="title" 
+                                           class="form-control" 
+                                           placeholder="e.g., Data Structures and Algorithms Final Exam"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="year" class="form-label">Academic Year *</label>
+                                    <select id="year" name="year" class="form-control form-select" required>
+                                        <option value="">Select Year</option>
+                                        {% for year in range(2015, 2026) %}
+                                            <option value="{{ year }}" {% if year == 2024 %}selected{% endif %}>
+                                                {{ year }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="subject" class="form-label">Subject *</label>
+                                    <input type="text" 
+                                           id="subject" 
+                                           name="subject" 
+                                           class="form-control" 
+                                           placeholder="e.g., Computer Science, Mathematics"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="semester" class="form-label">Semester *</label>
+                                    <select id="semester" name="semester" class="form-control form-select" required>
+                                        <option value="">Select Semester</option>
+                                        <option value="1st Semester">1st Semester</option>
+                                        <option value="2nd Semester">2nd Semester</option>
+                                        <option value="3rd Semester">3rd Semester</option>
+                                        <option value="4th Semester">4th Semester</option>
+                                        <option value="5th Semester">5th Semester</option>
+                                        <option value="6th Semester">6th Semester</option>
+                                        <option value="7th Semester">7th Semester</option>
+                                        <option value="8th Semester">8th Semester</option>
+                                        <option value="Summer">Summer</option>
+                                        <option value="Winter">Winter</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="exam_type" class="form-label">Exam Type</label>
+                                    <select id="exam_type" name="exam_type" class="form-control form-select">
+                                        <option value="Regular">Regular Exam</option>
+                                        <option value="Midterm">Midterm Exam</option>
+                                        <option value="Final">Final Exam</option>
+                                        <option value="Makeup">Makeup Exam</option>
+                                        <option value="Quiz">Quiz</option>
+                                        <option value="Assignment">Assignment</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="course" class="form-label">Course Code</label>
+                                    <input type="text" 
+                                           id="course" 
+                                           name="course" 
+                                           class="form-control" 
+                                           placeholder="e.g., CS101, MATH201">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="college" class="form-label">College/University</label>
+                            <input type="text" 
+                                   id="college" 
+                                   name="college" 
+                                   class="form-control" 
+                                   placeholder="Enter your college or university name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea id="description" 
+                                      name="description" 
+                                      class="form-control" 
+                                      rows="3"
+                                      placeholder="Optional: Add any additional information about this paper"></textarea>
+                        </div>
+                        
+                        <!-- File Upload Section -->
+                        <div class="form-group">
+                            <label for="file" class="form-label">Upload File *</label>
+                            <div class="upload-area" id="upload-area">
+                                <div class="upload-content" id="upload-content">
+                                    <div class="upload-icon mb-3">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14,2 14,8 20,8"></polyline>
+                                            <line x1="12" y1="18" x2="12" y2="12"></line>
+                                            <polyline points="9,15 12,12 15,15"></polyline>
+                                        </svg>
+                                    </div>
+                                    <h5>Click to upload or drag and drop</h5>
+                                    <p class="text-muted">PDF, DOC, DOCX files (Max 10MB)</p>
+                                </div>
+                                <input type="file" 
+                                       id="file" 
+                                       name="file" 
+                                       class="d-none" 
+                                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                       required>
+                            </div>
+                            <div id="file-info" class="mt-2" style="display: none;">
+                                <div class="alert alert-success">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>Selected file:</strong> <span id="file-name"></span>
+                                            <br><small id="file-size" class="text-muted"></small>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearFile()">
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="alert alert-info">
+                                <strong>Note:</strong> Your uploaded paper will be reviewed by administrators before being published. 
+                                Only appropriate academic content will be approved.
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                Upload Paper
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('file');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const uploadArea = document.getElementById('upload-area');
+    const uploadContent = document.getElementById('upload-content');
+    
+    // Click to upload
+    uploadArea.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    // File input change handler
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            const file = this.files[0];
+            showSelectedFile(file);
+        }
+    });
+    
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+        this.style.borderColor = '#007bff';
+        this.style.backgroundColor = '#f8f9fa';
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        if (!uploadArea.contains(e.relatedTarget)) {
+            this.classList.remove('dragover');
+            this.style.borderColor = '';
+            this.style.backgroundColor = '';
+        }
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        this.style.borderColor = '';
+        this.style.backgroundColor = '';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const dt = new DataTransfer();
+            dt.items.add(files[0]);
+            fileInput.files = dt.files;
+            showSelectedFile(files[0]);
+        }
+    });
+    
+    function showSelectedFile(file) {
+        // Validate file size (10MB limit)
+        const maxSize = 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('File size must be less than 10MB');
+            fileInput.value = '';
+            return;
+        }
+        
+        // Show file info
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.style.display = 'block';
+        
+        // Update upload area appearance
+        uploadArea.style.borderColor = '#28a745';
+        uploadArea.style.backgroundColor = '#f8fff9';
+        uploadContent.innerHTML = `
+            <div class="text-success mb-2">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 6L9 17l-5-5"/>
+                </svg>
+            </div>
+            <h6 class="text-success">File selected successfully</h6>
+            <p class="text-muted small mb-0">Click to change file</p>
+        `;
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Make formatFileSize available globally
+    window.formatFileSize = formatFileSize;
+});
+
+function clearFile() {
+    const fileInput = document.getElementById('file');
+    const fileInfo = document.getElementById('file-info');
+    const uploadArea = document.getElementById('upload-area');
+    const uploadContent = document.getElementById('upload-content');
+    
+    fileInput.value = '';
+    fileInfo.style.display = 'none';
+    uploadArea.style.borderColor = '';
+    uploadArea.style.backgroundColor = '';
+    
+    // Reset upload area content
+    uploadContent.innerHTML = `
+        <div class="upload-icon mb-3">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14,2 14,8 20,8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <polyline points="9,15 12,12 15,15"></polyline>
+            </svg>
+        </div>
+        <h5>Click to upload or drag and drop</h5>
+        <p class="text-muted">PDF, DOC, DOCX files (Max 10MB)</p>
+    `;
+    uploadArea.style.borderColor = '';
+}
+</script>
+{% endblock %}

@@ -11,7 +11,7 @@ def setup_render_environment():
     
     # Database configuration for Render
     render_env = {
-        'DATABASE_URL': 'postgresql://postgres:Papers#444@db.kpdmfxyhcogvxxlpuxyl.supabase.co:5432/postgres',
+        'DATABASE_URL': 'postgresql://papers_aly2_user:6JGPhFM3BnfnQ1tezHmFE7HeJXpKLwHw@dpg-d13ls20gjchc7390i32g-a.oregon-postgres.render.com/papers_aly2',
         'CLOUDINARY_CLOUD_NAME': 'dn5l0jh19',
         'CLOUDINARY_API_KEY': '741223792776498',
         'CLOUDINARY_API_SECRET': '36ODK08w5GkAd0UKekFkFt3QyXo',

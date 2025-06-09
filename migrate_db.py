@@ -19,7 +19,7 @@ def migrate_to_supabase():
     """Migrate database schema to Supabase PostgreSQL"""
     
     # Set your Supabase database URL
-    supabase_url = "postgresql://postgres:Papers#444@db.kpdmfxyhcogvxxlpuxyl.supabase.co:5432/postgres"
+    supabase_url = "postgresql://papers_aly2_user:6JGPhFM3BnfnQ1tezHmFE7HeJXpKLwHw@dpg-d13ls20gjchc7390i32g-a.oregon-postgres.render.com/papers_aly2"
     
     # Temporarily override the DATABASE_URL
     original_url = os.environ.get('DATABASE_URL')

@@ -11,7 +11,7 @@ def setup_render_environment():
     
     # Database configuration for Render
     render_env = {
-        'DATABASE_URL': 'postgresql://postgres:Papers%23444@db.kpdmfxyhcogvxxlpuxyl.supabase.co:5432/postgres',
+        'DATABASE_URL': 'postgresql://postgres:Papers#444@db.kpdmfxyhcogvxxlpuxyl.supabase.co:5432/postgres',
         'CLOUDINARY_CLOUD_NAME': 'dn5l0jh19',
         'CLOUDINARY_API_KEY': '741223792776498',
         'CLOUDINARY_API_SECRET': '36ODK08w5GkAd0UKekFkFt3QyXo',

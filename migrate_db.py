@@ -19,7 +19,7 @@ def migrate_to_supabase():
     """Migrate database schema to Supabase PostgreSQL"""
     
     # Set your Supabase database URL
-    supabase_url = "postgresql://papers_aly2_user:6JGPhFM3BnfnQ1tezHmFE7HeJXpKLwHw@dpg-d13ls20gjchc7390i32g-a/papers_aly2"
+    supabase_url = "postgresql://neondb_owner:npg_myxj9UHq7XIz@ep-aged-resonance-a6y4ggy6-pooler.us-west-2.aws.neon.tech/neondb?sslmode=require"
     
     # Temporarily override the DATABASE_URL
     original_url = os.environ.get('DATABASE_URL')

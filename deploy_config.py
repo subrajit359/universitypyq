@@ -11,7 +11,7 @@ def setup_render_environment():
     
     # Database configuration for Render
     render_env = {
-        'DATABASE_URL': 'postgresql://papers_aly2_user:6JGPhFM3BnfnQ1tezHmFE7HeJXpKLwHw@dpg-d13ls20gjchc7390i32g-a/papers_aly2',
+        'DATABASE_URL': 'postgresql://neondb_owner:npg_myxj9UHq7XIz@ep-aged-resonance-a6y4ggy6-pooler.us-west-2.aws.neon.tech/neondb?sslmode=require',
         'CLOUDINARY_CLOUD_NAME': 'dn5l0jh19',
         'CLOUDINARY_API_KEY': '741223792776498',
         'CLOUDINARY_API_SECRET': '36ODK08w5GkAd0UKekFkFt3QyXo',

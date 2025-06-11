@@ -357,6 +357,9 @@ def register_routes(app):
     @login_required
     def download_paper(paper_id):
         """Download a paper"""
+        import requests
+        from flask import Response
+        
         paper = Paper.query.get_or_404(paper_id)
         
         if not paper.is_approved:
@@ -371,52 +374,26 @@ def register_routes(app):
             logger.error(f'Error updating download count: {e}')
             # Continue with download even if count update fails
         
-        # Return a page that handles the download with better user feedback
         if paper.cloudinary_url:
-            return f'''
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Downloading {paper.title}</title>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-            </head>
-            <body class="bg-light">
-                <div class="container mt-5">
-                    <div class="row justify-content-center">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body text-center">
-                                    <div class="spinner-border text-primary mb-3" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <h5 class="card-title">Downloading: {paper.title}</h5>
-                                    <p class="card-text">Your download should start automatically...</p>
-                                    <a href="{paper.cloudinary_url}" class="btn btn-primary" target="_blank">
-                                        Click here if download doesn't start
-                                    </a>
-                                    <br><br>
-                                    <a href="{url_for('index')}" class="btn btn-secondary">
-                                        Return to Home
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <script>
-                    // Auto-start download and redirect after delay
-                    setTimeout(function() {{
-                        window.open('{paper.cloudinary_url}', '_blank');
-                        setTimeout(function() {{
-                            window.location.href = '{url_for("index")}';
-                        }}, 2000);
-                    }}, 1000);
-                </script>
-            </body>
-            </html>
-            '''
+            try:
+                # Stream the file from Cloudinary
+                cloudinary_response = requests.get(paper.cloudinary_url, stream=True)
+                cloudinary_response.raise_for_status()
+                
+                # Prepare response with correct headers
+                response = Response(
+                    cloudinary_response.iter_content(chunk_size=8192),
+                    content_type=cloudinary_response.headers.get('Content-Type', 'application/octet-stream')
+                )
+                # Set Content-Disposition header with original filename to include extension
+                filename = paper.original_filename or f"{paper.title}.pdf"
+                response.headers.set('Content-Disposition', 'attachment', filename=filename)
+                
+                return response
+            except Exception as e:
+                logger.error(f'Error downloading file from Cloudinary: {e}')
+                flash('Failed to download file. Please try again later.', 'error')
+                return redirect(url_for('index'))
         else:
             flash('File not available for download.', 'error')
             return redirect(url_for('index'))

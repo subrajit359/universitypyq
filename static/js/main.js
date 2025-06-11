@@ -545,13 +545,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (submitBtn && !submitBtn.disabled) {
                 LoadingManager.setLoading(submitBtn);
             }
-        });
-    });
-    
-    // Add loading states to navigation links
-    document.querySelectorAll('a[href]:not([href^="#"]):not([href^="javascript:"]):not([target="_blank"])').forEach(link => {
-        link.addEventListener('click', function() {
-            LoadingManager.showPageLoading();
+            // // Show page loading overlay on form submit (upload)
+            // LoadingManager.showPageLoading();
         });
     });
     
